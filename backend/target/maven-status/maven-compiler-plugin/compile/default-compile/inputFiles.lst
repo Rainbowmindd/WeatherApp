@@ -1,0 +1,15 @@
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\AppApplication.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\config\AppConfig.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\config\CorsConfig.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\controllers\WeatherController.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\DTO\DailyForecastDTO.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\DTO\DailyWeatherDTO.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\DTO\HourlyWeatherDTO.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\DTO\WeatherResponseDTO.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\DTO\WeeklySummaryDTO.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\services\EnergyCalculator.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\services\ForecastBuilder.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\services\GlobalExceptionHandler.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\services\WeatherApiClient.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\services\WeatherCalculator.java
+C:\Users\micha\Desktop\weatherapp studia\WeatherApp\backend\src\main\java\weather\forecast\app\services\WeatherService.java

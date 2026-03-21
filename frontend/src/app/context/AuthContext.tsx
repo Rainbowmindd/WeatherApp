@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
 
 export type UserRole = "USER" | "ADMIN";
@@ -16,7 +22,11 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
+  register: (
+    username: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -59,13 +69,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data);
       localStorage.setItem("weather_user", JSON.stringify(data));
 
-      router.push(data.role === "ADMIN" ? "/admin" : "/");
+      router.push(data.role === "ADMIN" ? "/admin" : "/weather");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (username: string, email: string, password: string) => {
+  const register = async (
+    username: string,
+    email: string,
+    password: string
+  ) => {
     setIsLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
@@ -83,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data: User = await res.json();
       setUser(data);
       localStorage.setItem("weather_user", JSON.stringify(data));
-      router.push("/");
+      router.push("/weather");
     } finally {
       setIsLoading(false);
     }

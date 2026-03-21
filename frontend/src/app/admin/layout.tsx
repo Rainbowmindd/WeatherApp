@@ -1,18 +1,25 @@
-import type { Metadata } from "next";
-import { AuthProvider } from "@/app/context/AuthContext";
-import "./globals.css";
+"use client";
+import { useAuth } from "@/app/context/AuthContext";
+import { withAuth } from "@/app/components/withAuth";
 
-export const metadata: Metadata = {
-  title: "WeatherApp",
-  description: "Twoja aplikacja pogodowa",
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+function AdminPage() {
+  const { user, logout } = useAuth();
   return (
-    <html lang="pl">
-      <body>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
+    <div className="main-page">
+      <header className="top-bar">
+        <span className="logo">⚙️ Admin Panel</span>
+        <div className="user-info">
+          <span className="role-badge">ADMIN</span>
+          <span>{user?.username}</span>
+          <button onClick={logout} className="logout-btn">Wyloguj</button>
+        </div>
+      </header>
+      <div className="placeholder-content">
+        <div className="big-icon">🛠️</div>
+        <h2>Admin Dashboard</h2>
+      </div>
+    </div>
   );
 }
+
+export default withAuth(AdminPage, { allowedRoles: ["ADMIN"] });

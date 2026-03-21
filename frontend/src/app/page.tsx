@@ -1,105 +1,121 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {mapWeatherCodeToIcon} from "@/app/utils/weatherIcons";
+import { mapWeatherCodeToIcon } from "@/app/utils/weatherIcons";
 import DayForecast from "./components/DayForecast";
 import DarkModeButton from "@/app/components/DarkModeButton";
 import SummaryPanel from "@/app/components/SummaryPanel";
+import { useAuth } from "@/app/context/AuthContext";
+import { withAuth } from "@/app/components/withAuth";
 import dynamic from "next/dynamic";
-import {DayForecastData, WeeklySummaryData} from "@/app/types/weather";
-//dynamic import because leaflet caused issues
+import { DayForecastData, WeeklySummaryData } from "@/app/types/weather";
+
 const MapPicker = dynamic(() => import("@/app/components/MapPicker"), {
-    ssr: false,
+  ssr: false,
 });
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export default function Home() {
-    const [lat, setLat] = useState<number | null>(null);
-    const [lon, setLon] = useState<number | null>(null);
-    const [showMap, setShowMap] = useState(false);
+function WeatherHomePage() {
+  const { user, logout } = useAuth();
 
-    const [forecast, setForecast] = useState<DayForecastData[]>([]);
-    const [summary, setSummary] = useState<WeeklySummaryData | null>(null);
+  const [lat, setLat] = useState<number | null>(null);
+  const [lon, setLon] = useState<number | null>(null);
+  const [showMap, setShowMap] = useState(false);
+  const [forecast, setForecast] = useState<DayForecastData[]>([]);
+  const [summary, setSummary] = useState<WeeklySummaryData | null>(null);
 
-    const handleLocation = (lat: number, lon: number) => {
-        setLat(lat);
-        setLon(lon);
-    };
+  const handleLocation = (lat: number, lon: number) => {
+    setLat(lat);
+    setLon(lon);
+  };
 
-    const toggleMap = () => {
-        setShowMap(!showMap);
-    }
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      setLat(position.coords.latitude);
+      setLon(position.coords.longitude);
+    });
+  }, []);
 
-    //This gets coords on page load
-    useEffect(() => {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                setLat(position.coords.latitude);
-                setLon(position.coords.longitude);
-            },
-        );
-    }, []);
+  useEffect(() => {
+    if (!API_BASE_URL || lat === null || lon === null) return;
 
-    //This fetches data whenever coords update
-    useEffect(() => {
-        if (!API_BASE_URL) {
-            return;
-        }
-        if (lat !== null && lon !== null) {
-            fetch(`${API_BASE_URL}/today?lat=${lat}&lon=${lon}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setForecast(data);
-                })
-                .catch((err) => console.error(err));
+    fetch(`${API_BASE_URL}/today?lat=${lat}&lon=${lon}`)
+      .then((res) => res.json())
+      .then(setForecast)
+      .catch(console.error);
 
-            fetch(`${API_BASE_URL}/weekly-summary?lat=${lat}&lon=${lon}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setSummary(data);
-                })
-                .catch((err) => console.error(err));
-        }
-    }, [lat, lon]);
+    fetch(`${API_BASE_URL}/weekly-summary?lat=${lat}&lon=${lon}`)
+      .then((res) => res.json())
+      .then(setSummary)
+      .catch(console.error);
+  }, [lat, lon]);
 
-    return (
-        <main className="flex flex-col items-center min-h-screen p-8">
-            <h1 className="text-4xl mt-6 mb-8">Whatstheweather?</h1>
+  return (
+    <div className="main-page">
+      {/* ── Top bar ── */}
+      <header className="top-bar">
+        <span className="logo">⛅ Whatstheweather?</span>
+        <div className="user-info">
+          <span>{user?.name}</span>
+          <button onClick={logout} className="logout-btn">Wyloguj</button>
+        </div>
+      </header>
 
+      {/* ── Content ── */}
+      <main className="weather-page">
+        <h1 className="weather-title">Whatstheweather?</h1>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-24">
-                {forecast.map((day) => (
-                    <DayForecast
-                        key={day.date}
-                        date={day.date}
-                        maxTemp={day.maxTemperature}
-                        minTemp={day.minTemperature}
-                        energy={Number(day.estimatedEnergyKWh.toFixed(2))}
-                        icon={mapWeatherCodeToIcon(day.weatherCode)}
-                    />
-                ))}
-            </div>
+        {/* 7-day forecast */}
+        <div className="forecast-grid">
+          {forecast.map((day) => (
+            <DayForecast
+              key={day.date}
+              date={day.date}
+              maxTemp={day.maxTemperature}
+              minTemp={day.minTemperature}
+              energy={Number(day.estimatedEnergyKWh.toFixed(2))}
+              icon={mapWeatherCodeToIcon(day.weatherCode)}
+            />
+          ))}
+        </div>
 
-            {summary ?
-                <SummaryPanel
-                    minTemperature={summary.minTemperature}
-                    maxTemperature={summary.maxTemperature}
-                    averagePressure={summary.averagePressure}
-                    averageSunshineHours={summary.averageSunshineHours}
-                    weatherSummary={summary.weatherSummary}
-                /> : "Loading the API, please be patient (This takes about 2 minutes!)"}
-            <div className="grid grid-cols-2 gap-10 mb-4">
-                <DarkModeButton/>
-                <button onClick={toggleMap} className="mb-4 px-4 py-2 bg-[var(--panels)] rounded">Toggle map</button>
-            </div>
+        {/* Weekly summary */}
+        {summary ? (
+          <SummaryPanel
+            minTemperature={summary.minTemperature}
+            maxTemperature={summary.maxTemperature}
+            averagePressure={summary.averagePressure}
+            averageSunshineHours={summary.averageSunshineHours}
+            weatherSummary={summary.weatherSummary}
+          />
+        ) : (
+          <p className="api-loading">
+            ⏳ Ładowanie API, proszę czekać (może potrwać ~2 minuty)…
+          </p>
+        )}
 
-            { showMap &&
-                <main className="flex flex-col items-center">
-                    <h1 className="text-xl mb-4">Pick any point on the map:</h1>
-                    <MapPicker onLocationSelected={handleLocation}/>
-                </main>
-            }
-        </main>
-    );
+        {/* Controls */}
+        <div className="controls-row">
+          <DarkModeButton />
+          <button
+            onClick={() => setShowMap((v) => !v)}
+            className={`ghost-btn ${showMap ? "active" : ""}`}
+          >
+            🗺️ {showMap ? "Ukryj mapę" : "Wybierz lokalizację"}
+          </button>
+        </div>
+
+        {/* Map */}
+        {showMap && (
+          <div className="map-section">
+            <h2>Kliknij dowolne miejsce na mapie</h2>
+            <MapPicker onLocationSelected={handleLocation} />
+          </div>
+        )}
+      </main>
+    </div>
+  );
 }
+
+export default withAuth(WeatherHomePage, { allowedRoles: ["USER"] });

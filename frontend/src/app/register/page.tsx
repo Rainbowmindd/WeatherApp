@@ -6,7 +6,7 @@ import { useAuth } from "@/app/context/AuthContext";
 
 export default function RegisterPage() {
   const { register, isLoading } = useAuth();
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -26,7 +26,7 @@ export default function RegisterPage() {
     }
 
     try {
-      await register(name, email, password);
+      await register(username, email, password);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Wystąpił błąd");
     }
@@ -45,15 +45,15 @@ export default function RegisterPage() {
           {error && <div className="auth-error">{error}</div>}
 
           <div className="field">
-            <label htmlFor="name">Imię i nazwisko</label>
+            <label htmlFor="username">Nazwa użytkownika</label>
             <input
-              id="name"
+              id="username"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Jan Kowalski"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="jan_kowalski"
               required
-              autoComplete="name"
+              autoComplete="username"
             />
           </div>
 

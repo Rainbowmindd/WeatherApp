@@ -1,36 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// ---------- MOCK DATA (zastąp prawdziwym wywołaniem Spring Boot) ----------
-const MOCK_USERS = [
-  { id: "1", email: "user@test.pl",  password: "user123",  name: "Jan Kowalski", role: "USER"  },
-  { id: "2", email: "admin@test.pl", password: "admin123", name: "Admin Root",   role: "ADMIN" },
-];
-// -------------------------------------------------------------------------
+const SPRING_URL = process.env.SPRING_API_URL ?? "http://localhost:8080";
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json();
+  const body = await req.json();
 
-  // --- Docelowo: wywołanie Spring Boot ---
-  // const res = await fetch("http://localhost:8080/api/auth/login", {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify({ email, password }),
-  // });
-  // if (!res.ok) return NextResponse.json({ message: "Zły email lub hasło" }, { status: 401 });
-  // const data = await res.json();
-  // return NextResponse.json(data);
+  const springRes = await fetch(`${SPRING_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 
-  const found = MOCK_USERS.find(
-    (u) => u.email === email && u.password === password
-  );
+  const text = await springRes.text();
 
-  if (!found) {
-    return NextResponse.json(
-      { message: "Zły email lub hasło" },
-      { status: 401 }
-    );
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    if (!springRes.ok) {
+      return NextResponse.json({ message: text }, { status: 401 });
+    }
+    return NextResponse.json({ message: "Zalogowano" }, { status: 200 });
   }
 
-  const { password: _pw, ...safeUser } = found;
-  return NextResponse.json(safeUser);
+  if (!springRes.ok) {
+    const msg =
+      (data as Record<string, string>)?.message ?? "Zły login lub hasło";
+    return NextResponse.json({ message: msg }, { status: 401 });
+  }
+
+  const response = NextResponse.json(data);
+  const setCookie = springRes.headers.get("set-cookie");
+  if (setCookie) response.headers.set("set-cookie", setCookie);
+
+  return response;
 }

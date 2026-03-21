@@ -1,28 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const SPRING_URL = process.env.SPRING_API_URL ?? "http://localhost:8080";
+
 export async function POST(req: NextRequest) {
-  const { name, email, password } = await req.json();
+  const body = await req.json();
 
-  // --- Docelowo: wywołanie Spring Boot ---
-  // const res = await fetch("http://localhost:8080/api/auth/register", {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify({ name, email, password }),
-  // });
-  // if (!res.ok) {
-  //   const err = await res.json();
-  //   return NextResponse.json({ message: err.message || "Błąd rejestracji" }, { status: res.status });
-  // }
-  // const data = await res.json();
-  // return NextResponse.json(data);
+  const springRes = await fetch(`${SPRING_URL}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 
-  // MOCK: nowi użytkownicy zawsze dostają rolę USER
-  const newUser = {
-    id: crypto.randomUUID(),
-    email,
-    name,
-    role: "USER" as const,
-  };
+  const data = await springRes.json();
 
-  return NextResponse.json(newUser, { status: 201 });
+  if (!springRes.ok) {
+    return NextResponse.json(
+      { message: data.message ?? "Błąd rejestracji" },
+      { status: springRes.status }
+    );
+  }
+
+  // Przepisz JSESSIONID do przeglądarki
+  const response = NextResponse.json(data, { status: 201 });
+  const setCookie = springRes.headers.get("set-cookie");
+  if (setCookie) response.headers.set("set-cookie", setCookie);
+
+  return response;
 }

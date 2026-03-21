@@ -1,4 +1,3 @@
-//stan auth + login/register/logout
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
@@ -8,17 +7,17 @@ export type UserRole = "USER" | "ADMIN";
 
 export interface User {
   id: string;
+  username: string;
   email: string;
-  name: string;
   role: UserRole;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  login: (username: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -28,50 +27,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // On mount, check if user is stored in localStorage (simulate session)
+  // On mount — restore user from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("weather_user");
     if (stored) {
-      setUser(JSON.parse(stored));
+      try {
+        setUser(JSON.parse(stored));
+      } catch {
+        localStorage.removeItem("weather_user");
+      }
     }
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     setIsLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        credentials: "include", // ważne — przesyła/odbiera JSESSIONID
+        body: JSON.stringify({ username, password }),
       });
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || "Błąd logowania");
+        throw new Error(err.message || "Zły login lub hasło");
       }
 
       const data: User = await res.json();
       setUser(data);
       localStorage.setItem("weather_user", JSON.stringify(data));
 
-      if (data.role === "ADMIN") {
-        router.push("/admin");
-      } else {
-        router.push("/");
-      }
+      router.push(data.role === "ADMIN" ? "/admin" : "/");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (username: string, email: string, password: string) => {
     setIsLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        credentials: "include",
+        body: JSON.stringify({ username, email, password }),
       });
 
       if (!res.ok) {
@@ -88,7 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
     setUser(null);
     localStorage.removeItem("weather_user");
     router.push("/login");

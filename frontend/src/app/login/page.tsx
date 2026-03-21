@@ -6,7 +6,7 @@ import { useAuth } from "@/app/context/AuthContext";
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -14,7 +14,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     try {
-      await login(email, password);
+      await login(username, password);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Wystąpił błąd");
     }
@@ -33,15 +33,15 @@ export default function LoginPage() {
           {error && <div className="auth-error">{error}</div>}
 
           <div className="field">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="username">Nazwa użytkownika</label>
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="jan@example.com"
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="jan_kowalski"
               required
-              autoComplete="email"
+              autoComplete="username"
             />
           </div>
 

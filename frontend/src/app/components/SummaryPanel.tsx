@@ -36,7 +36,7 @@ export default function SummaryPanel({
 
       <div className="summary-text">
         {weatherSummary === "no rainfall" || !weatherSummary
-          ? "🌤️ Brak opadów w tym tygodniu"
+          ? "🌤️ No rainfall"
           : `🌧️ ${weatherSummary}`}
       </div>
     </div>

@@ -18,6 +18,8 @@ import weather.forecast.app.security.dto.RegisterRequest;
 import weather.forecast.app.user.User;
 import weather.forecast.app.user.UserRepository;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -28,11 +30,11 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request, HttpSession session) {
         if (userRepository.existsByUsername(request.getUsername()))
-            throw new IllegalArgumentException("Username already taken");
+            return ResponseEntity.badRequest().body(Map.of("message", "Nazwa użytkownika jest już zajęta"));
         if (userRepository.existsByEmail(request.getEmail()))
-            throw new IllegalArgumentException("Email already registered");
+            return ResponseEntity.badRequest().body(Map.of("message", "Email jest już zarejestrowany"));
 
         User user = User.builder()
                 .username(request.getUsername())
@@ -41,7 +43,21 @@ public class AuthController {
                 .build();
 
         userRepository.save(user);
-        return ResponseEntity.ok("Registered successfully");
+
+        // Auto-login po rejestracji
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext());
+
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "username", user.getUsername(),
+                "email", user.getEmail(),
+                "role", user.getRole()
+        ));
     }
 
     @PostMapping("/login")
@@ -52,6 +68,15 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(auth);
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
-        return ResponseEntity.ok("Logged in");
+
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow();
+
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "username", user.getUsername(),
+                "email", user.getEmail(),
+                "role", user.getRole()
+        ));
     }
 }

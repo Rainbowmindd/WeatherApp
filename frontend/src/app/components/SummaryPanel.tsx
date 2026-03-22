@@ -1,28 +1,44 @@
-"use client";
-
 interface SummaryPanelProps {
-    maxTemperature: number;
-    minTemperature: number;
-    averagePressure: number;
-    averageSunshineHours: number;
-    weatherSummary: string;
+  minTemperature: number;
+  maxTemperature: number;
+  averagePressure: number;
+  averageSunshineHours: number;
+  weatherSummary: string;
 }
 
-export default function SummaryPanel({maxTemperature, minTemperature, averagePressure, averageSunshineHours, weatherSummary}: SummaryPanelProps) {
+export default function SummaryPanel({
+  minTemperature,
+  maxTemperature,
+  averagePressure,
+  averageSunshineHours,
+  weatherSummary,
+}: SummaryPanelProps) {
+  return (
+    <div className="summary-panel">
+      <div className="summary-stat">
+        <span className="stat-label">Temp. max</span>
+        <span className="stat-value">{maxTemperature.toFixed(1)}°C</span>
+      </div>
+      <div className="summary-stat">
+        <span className="stat-label">Temp. min</span>
+        <span className="stat-value">{minTemperature.toFixed(1)}°C</span>
+      </div>
+      <div className="summary-stat">
+        <span className="stat-label">Ciśnienie</span>
+        <span className="stat-value">{Math.round(averagePressure)}</span>
+        <span className="stat-sub">hPa (średnia)</span>
+      </div>
+      <div className="summary-stat">
+        <span className="stat-label">Nasłonecznienie</span>
+        <span className="stat-value">{averageSunshineHours.toFixed(1)}</span>
+        <span className="stat-sub">godz./dzień</span>
+      </div>
 
-    return (
-        <footer className="text-center border-t mb-10 pt-4 w-full">
-            <p className={"text-2xl mb-4"}> This week, in a nutshell: </p>
-            <p>
-                Max: {maxTemperature}°C &nbsp;
-                Min: {minTemperature}°C &nbsp;
-            </p>
-            <p>
-                Averages: &nbsp;
-                {averagePressure.toFixed(2)} hPa &nbsp;
-                ☀️ {averageSunshineHours.toFixed(1)}h
-            </p>
-            <p className="mt-2">{weatherSummary}</p>
-        </footer>
-    )
+      <div className="summary-text">
+        {weatherSummary === "no rainfall" || !weatherSummary
+          ? "🌤️ Brak opadów w tym tygodniu"
+          : `🌧️ ${weatherSummary}`}
+      </div>
+    </div>
+  );
 }

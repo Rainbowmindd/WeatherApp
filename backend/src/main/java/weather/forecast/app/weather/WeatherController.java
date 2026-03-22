@@ -31,7 +31,11 @@ class WeatherController {
         try {
             CoordinatesDto coords = new CoordinatesDto(lat, lon);
             List<DailyForecastDto> forecast = weatherService.getWeatherThisWeek(coords);
-            searchLogFacade.log((User) authentication.getPrincipal(), geographyApiFacade.getCityName(lat, lon), lat, lon);
+            
+            if (authentication != null && authentication.getPrincipal() instanceof User user) {
+                searchLogFacade.log(user, geographyApiFacade.getCityName(lat, lon), lat, lon);
+            }
+            
             return ResponseEntity.ok(forecast);
         }
         catch (Exception e) {
@@ -44,7 +48,11 @@ class WeatherController {
         try {
             CoordinatesDto coords = new CoordinatesDto(lat, lon);
             WeeklySummaryDto summary = weatherService.getWeeklySummary(coords);
-            searchLogFacade.log((User) authentication.getPrincipal(), geographyApiFacade.getCityName(lat, lon), lat, lon);
+            
+            if (authentication != null && authentication.getPrincipal() instanceof User user) {
+                searchLogFacade.log(user, geographyApiFacade.getCityName(lat, lon), lat, lon);
+            }
+            
             return ResponseEntity.ok(summary);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

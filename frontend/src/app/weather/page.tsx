@@ -43,7 +43,9 @@ function WeatherHomePage() {
 
     console.log("fetching:", `${API_BASE_URL}/today?lat=${lat}&lon=${lon}`);
 
-    fetch(`${API_BASE_URL}/today?lat=${lat}&lon=${lon}`)
+    fetch(`${API_BASE_URL}/today?lat=${lat}&lon=${lon}`, {
+      credentials: "include",
+    })
       .then((res) => res.json())
       .then((data) => {
         console.log("forecast data:", data);
@@ -51,7 +53,9 @@ function WeatherHomePage() {
       })
       .catch(console.error);
 
-    fetch(`${API_BASE_URL}/weekly-summary?lat=${lat}&lon=${lon}`)
+    fetch(`${API_BASE_URL}/weekly-summary?lat=${lat}&lon=${lon}`, {
+      credentials: "include",
+    })
       .then((res) => res.json())
       .then((data) => {
         console.log("summary data:", data);
@@ -108,7 +112,6 @@ function WeatherHomePage() {
 
         {/* Controls */}
         <div className="controls-row">
-          <DarkModeButton />
           <button
             onClick={() => setShowMap((v) => !v)}
             className={`ghost-btn ${showMap ? "active" : ""}`}

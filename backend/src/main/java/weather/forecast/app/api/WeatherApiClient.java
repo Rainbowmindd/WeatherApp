@@ -1,5 +1,6 @@
 package weather.forecast.app.api;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -8,16 +9,13 @@ import weather.forecast.app.api.dto.WeatherResponseDto;
 import weather.forecast.app.weather.dto.CoordinatesDto;
 
 @Service
+@RequiredArgsConstructor
 class WeatherApiClient implements WeatherApiFacade {
 
     @Value("${weather.api.url}")
     private String weatherApiUrl;
 
     private final RestTemplate restTemplate;
-
-    public WeatherApiClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
 
     @Override
     public WeatherResponseDto fetchWeatherForForecast(CoordinatesDto coords) {

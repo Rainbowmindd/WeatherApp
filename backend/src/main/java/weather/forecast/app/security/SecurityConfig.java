@@ -40,8 +40,8 @@ public class SecurityConfig {
                 }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/v1/weather/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

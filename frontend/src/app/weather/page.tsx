@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { mapWeatherCodeToIcon } from "@/app/utils/weatherIcons";
 import DayForecast from "@/app/components/DayForecast";
-import DarkModeButton from "@/app/components/DarkModeButton";
+// import DarkModeButton from "@/app/components/DarkModeButton";
 import SummaryPanel from "@/app/components/SummaryPanel";
 import { useAuth } from "@/app/context/AuthContext";
 import { withAuth } from "@/app/components/withAuth";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 
@@ -12,22 +12,29 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "/leaflet_markers/marker-shadow.png",
 });
 
-export default function MapPicker(
-  /**
-   * @ignore
-   */
-  {
-    onLocationSelected,
-  }: { onLocationSelected: (lat: number, lon: number) => void }
-) {
+export default function MapPicker({
+  onLocationSelected,
+}: {
+  onLocationSelected: (lat: number, lon: number) => void;
+}) {
   const [position, setPosition] = useState<[number, number] | null>(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function LocationMarker() {
     useMapEvents({
       click(e) {
         const { lat, lng } = e.latlng;
-        setPosition([lat, lng]);
-        onLocationSelected(lat, lng);
+        setPosition([lat, lng]); // marker przesuwa się od razu
+
+        // Anuluj poprzedni timer
+        if (debounceTimer.current) {
+          clearTimeout(debounceTimer.current);
+        }
+
+        // Zapytanie do API dopiero po 500ms od ostatniego kliknięcia
+        debounceTimer.current = setTimeout(() => {
+          onLocationSelected(lat, lng);
+        }, 500);
       },
     });
 

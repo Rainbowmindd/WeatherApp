@@ -18,6 +18,7 @@ class WeatherCalculator {
         var tempsMax = weather.getDaily().getTemperature_2m_max();
         var precipitationSums = weather.getDaily().getPrecipitation_sum();
 
+        // Dane dzienne muszą mieć 7 wartości, ciśnienie 7*24 (godzinowe przez cały tydzień)
         if (sunshineDurations.size()!=7 || tempsMin.size()!=7 || tempsMax.size()!=7 || precipitationSums.size()!=7 || pressures.size()!=7*24) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Data received from API is incomplete!");
         }
@@ -29,8 +30,9 @@ class WeatherCalculator {
         Integer rainyDaysCount = (int) precipitationSums.stream().filter(d -> d>0).count();
 
         Double avgPressure = sumPressure/(24*7);
-        Double avgSunshineHours = sumSunshine/3600/7;
+        Double avgSunshineHours = sumSunshine/3600/7; // API zwraca sekundy, przeliczamy na godziny
 
+        // Tydzień uznajemy za deszczowy jeśli pada przez większość dni
         String weatherSummary = (rainyDaysCount >= 4) ? "rainfall" : "no rainfall";
         return new WeeklySummaryDto(
                 avgPressure,

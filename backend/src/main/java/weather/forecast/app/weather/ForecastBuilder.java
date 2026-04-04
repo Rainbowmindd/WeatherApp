@@ -15,7 +15,7 @@ import java.util.List;
 class ForecastBuilder {
     private final EnergyCalculatorService energyCalculatorService;
 
-    public List<DailyForecastDto> toDailyForecastDtoList(WeatherResponseDto weather){
+    public List<DailyForecastDto> toDailyForecastDtoList(WeatherResponseDto weather) {
         var dates = weather.getDaily().getTime();
         var weatherCodes = weather.getDaily().getWeathercode();
         var sunshineDurations = weather.getDaily().getSunshine_duration();
@@ -31,6 +31,7 @@ class ForecastBuilder {
         List<DailyForecastDto> forecastList = new ArrayList<>();
 
         for (int i = 0; i < dates.size(); i++) {
+            // Szacujemy produkcję energii na podstawie czasu nasłonecznienia danego dnia
             Double energyProduced = energyCalculatorService.calculateEnergyKWh(sunshineDurations.get(i));
             DailyForecastDto daily = new DailyForecastDto(
                     dates.get(i),
@@ -45,10 +46,8 @@ class ForecastBuilder {
     }
 
     void validateData(List<String> dates, List<Integer> weatherCodes, List<Double> sunshineDurations, List<Double> tempsMin, List<Double> tempsMax) {
-        if (dates.size()!=7 || weatherCodes.size()!=7 || sunshineDurations.size()!=7|| tempsMin.size()!=7 || tempsMax.size()!=7) {
+        if (dates.size()!=7 || weatherCodes.size()!=7 || sunshineDurations.size()!=7 || tempsMin.size()!=7 || tempsMax.size()!=7) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Data from API is incomplete!");
         }
     }
-
-
 }

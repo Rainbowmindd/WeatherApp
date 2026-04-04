@@ -11,6 +11,7 @@ class SearchLogService implements SearchLogFacade {
     private final SearchLogRepository searchLogRepository;
 
     @Override
+    // Zapisuje historię wyszukiwań użytkowników – używane do statystyk w panelu admina
     public void log(User user, String city, Double lat, Double lon) {
         searchLogRepository.save(SearchLog.builder()
                 .userId(user.getId())

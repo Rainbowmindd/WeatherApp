@@ -24,6 +24,7 @@ class WeatherService {
     public List<DailyForecastDto> getWeatherThisWeek(CoordinatesDto coords) {
         var nextWeekWeather = apiClient.fetchWeatherForForecast(coords);
 
+        // API może zwrócić pustą odpowiedź np. przy złych współrzędnych
         if (nextWeekWeather == null || nextWeekWeather.getDaily() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Data from API is null");
         }
@@ -31,7 +32,7 @@ class WeatherService {
         return forecastBuilder.toDailyForecastDtoList(nextWeekWeather);
     }
 
-    public WeeklySummaryDto getWeeklySummary(CoordinatesDto coords){
+    public WeeklySummaryDto getWeeklySummary(CoordinatesDto coords) {
         var nextWeekWeather = apiClient.fetchWeatherForSummary(coords);
 
         if (nextWeekWeather == null || nextWeekWeather.getDaily() == null) {

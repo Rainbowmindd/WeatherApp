@@ -19,11 +19,12 @@ public class DataSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${app.admin.password:admin123}")
+    @Value("${app.admin.password:admin123}") // hasło można nadpisać zmienną środowiskową
     private String adminPassword;
 
     @Override
     public void run(String... args) {
+    // Tworzy domyślnego admina przy starcie aplikacji, jeśli jeszcze nie istnieje
         if (userRepository.findByUsername("admin").isEmpty()) {
             userRepository.save(User.builder()
                     .username("admin")

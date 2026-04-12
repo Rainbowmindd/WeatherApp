@@ -29,19 +29,20 @@ class WeatherApiClient implements WeatherApiFacade {
         return restTemplate.getForObject(url, WeatherResponseDto.class);
     }
 
+    // Dane potrzebne do prognozy: temperatura min/max, kod pogody i czas nasłonecznienia
     private String buildUrlForForecast(double lat, double lon) {
-        String url = UriComponentsBuilder
+        return UriComponentsBuilder
                 .fromHttpUrl(weatherApiUrl)
                 .queryParam("latitude", lat)
                 .queryParam("longitude", lon)
                 .queryParam("daily", "temperature_2m_max,temperature_2m_min,weathercode,sunshine_duration")
                 .queryParam("timezone", "auto")
                 .toUriString();
-        return url;
     }
 
+    // Podsumowanie wymaga dodatkowo sumy opadów i godzinowego ciśnienia atmosferycznego
     private String buildUrlForSummary(double lat, double lon) {
-        String url = UriComponentsBuilder
+        return UriComponentsBuilder
                 .fromHttpUrl(weatherApiUrl)
                 .queryParam("latitude", lat)
                 .queryParam("longitude", lon)
@@ -49,6 +50,5 @@ class WeatherApiClient implements WeatherApiFacade {
                 .queryParam("hourly", "pressure_msl")
                 .queryParam("timezone", "auto")
                 .toUriString();
-        return url;
     }
 }

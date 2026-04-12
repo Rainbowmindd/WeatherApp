@@ -30,13 +30,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // Sesja oparta na ciasteczkach – CSRF zbędny po stronie REST API
                 .csrf(AbstractHttpConfigurer::disable)
+                // Zezwalamy tylko frontendowi na localhost podczas developmentu
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of(
-                            "http://localhost:3000",
-                            "http://localhost:3001"
-                    ));
+                    config.setAllowedOrigins(List.of("http://localhost:3000"));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(List.of("*"));
@@ -44,10 +43,11 @@ public class SecurityConfig {
                 }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/v1/weather/**").permitAll()
                         .requestMatchers("/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/v1/weather/**").permitAll() // pogoda dostępna bez logowania
                         .anyRequest().authenticated()
                 )
+                // Zamiast domyślnego przekierowania na /login zwracamy 401
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
